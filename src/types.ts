@@ -36,6 +36,8 @@ export interface ExtensionConfig {
   enabledLanguages: string[];
   /** Custom language patterns (add new or override built-in) */
   customLanguages: LanguageConfig[];
+  /** Function names that accept class strings (e.g., cn, clsx, twMerge) */
+  classFunctions: string[];
   /** Auto-sort on save */
   runOnSave: boolean;
   /** Show code actions for sorting */

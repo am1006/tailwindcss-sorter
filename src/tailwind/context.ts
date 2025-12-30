@@ -118,10 +118,20 @@ export async function createContext(
           const content = await fs.readFile(resolved, 'utf-8');
           return { base: path.dirname(resolved), content };
         } catch {
-          // Try node_modules resolution for tailwindcss internal imports
+          // Try node_modules resolution for tailwindcss imports
           try {
-            const normalizedId = id.replace(/^tailwindcss\//, '');
-            const pkgPath = require.resolve(`tailwindcss/${normalizedId}`);
+            // Handle bare "tailwindcss" import (resolves to tailwindcss/index.css)
+            // and "tailwindcss/..." imports
+            let moduleId: string;
+            if (id === 'tailwindcss') {
+              moduleId = 'tailwindcss/index.css';
+            } else if (id.startsWith('tailwindcss/')) {
+              moduleId = id;
+            } else {
+              // Try as-is for other packages
+              moduleId = id;
+            }
+            const pkgPath = require.resolve(moduleId);
             const content = await fs.readFile(pkgPath, 'utf-8');
             return { base: path.dirname(pkgPath), content };
           } catch {

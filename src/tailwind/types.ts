@@ -18,6 +18,8 @@ export interface SortOptions {
   removeDuplicates?: boolean;
   /** Collapse multiple whitespace characters to single space */
   collapseWhitespace?: boolean | { start: boolean; end: boolean };
+  /** Optional logger for debug output */
+  logger?: SortLogger;
 }
 
 /**
@@ -38,4 +40,11 @@ export interface TailwindContextConfig {
   entryPoint?: string;
   /** Workspace root for resolving relative paths */
   workspaceRoot?: string;
+}
+
+/**
+ * Logger interface for sorting operations
+ */
+export interface SortLogger {
+  debug(message: string): void;
 }

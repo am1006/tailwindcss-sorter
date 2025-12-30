@@ -4,6 +4,26 @@ All notable changes to the "Tailwind CSS Class Sorter" extension will be documen
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.0.3] - 2024-12-30
+
+### Added
+
+- **New `classFunctions` setting:** Configure function names that accept Tailwind class strings (e.g., `cn`, `clsx`, `twMerge`, `merge`). The extension will automatically sort ALL string arguments within these function calls.
+  - Default functions: `cn`, `clsx`, `twMerge`, `twJoin`, `cva`, `cx`, `merge`, `tw`
+  - Handles multiple arguments: `cn("px-2", "bg-red", "p-3")`
+  - Handles arrays: `merge(["px-2 py-1", "bg-red"])`
+  - Handles nested calls and conditional expressions
+  - Works across all supported languages (Ruby, JSX, TSX, etc.)
+
+### Changed
+
+- Simplified JSX/TSX built-in patterns by removing hardcoded utility function matching (now handled globally by `classFunctions`)
+- Improved pattern matching using balanced parenthesis tracking instead of regex-only approach
+
+### Fixed
+
+- Now correctly matches ALL string arguments in utility functions, not just the first one
+
 ## [0.0.2] - 2024-12-30
 
 ### Changed

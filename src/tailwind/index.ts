@@ -22,6 +22,7 @@ export type {
   TailwindContextConfig,
   SortOptions,
   SortClassListResult,
+  SortLogger,
 } from './types';
 
 // Context creation

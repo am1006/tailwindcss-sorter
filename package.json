@@ -2,7 +2,7 @@
   "name": "tailwindcss-class-sorter",
   "displayName": "Tailwind CSS Class Sorter",
   "description": "Sort Tailwind CSS v4 classes in any file format using configurable regex patterns. Works with Ruby/Phlex, ERB, React, Vue, and more.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "am1006",
   "repository": {
     "type": "git",
@@ -132,6 +132,35 @@
             ]
           }
         },
+        "tailwindcss-sorter.classFunctions": {
+          "type": "array",
+          "default": [
+            "cn",
+            "clsx",
+            "twMerge",
+            "twJoin",
+            "cva",
+            "cx",
+            "merge",
+            "tw"
+          ],
+          "description": "Function names that accept Tailwind class strings. The extension will sort class strings passed to these functions (e.g., cn('px-2 flex'), merge(['p-4', 'mt-2'])).",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "cn",
+              "clsx",
+              "twMerge"
+            ],
+            [
+              "merge",
+              "tw",
+              "classes"
+            ]
+          ]
+        },
         "tailwindcss-sorter.runOnSave": {
           "type": "boolean",
           "default": false,
@@ -181,7 +210,7 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test",
+    "test:avoid-using-this": "vscode-test",
     "test:unit": "npm run compile-tests && mocha 'out/test/patterns/**/*.test.js' 'out/test/sorting/**/*.test.js'"
   },
   "devDependencies": {

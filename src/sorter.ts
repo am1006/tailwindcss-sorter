@@ -6,6 +6,7 @@ import {
   findEntryPoint,
   type TailwindContext,
   type ContextLogger,
+  type SortLogger,
 } from './tailwind';
 
 /**
@@ -27,11 +28,15 @@ export class TailwindSorterService {
   private currentConfigHash: string = '';
   private initPromise: Promise<void> | null = null;
   private outputChannel: vscode.OutputChannel;
-  private logger: ContextLogger;
+  private contextLogger: ContextLogger;
+  private sortLogger: SortLogger;
 
   constructor(outputChannel: vscode.OutputChannel) {
     this.outputChannel = outputChannel;
-    this.logger = createVSCodeLogger(outputChannel);
+    this.contextLogger = createVSCodeLogger(outputChannel);
+    this.sortLogger = {
+      debug: (message: string) => outputChannel.appendLine(`  ${message}`),
+    };
   }
 
   /**
@@ -100,7 +105,7 @@ export class TailwindSorterService {
     try {
       const context = await createContext(
         { entryPoint, workspaceRoot },
-        this.logger
+        this.contextLogger
       );
 
       this.context = context;
@@ -125,6 +130,7 @@ export class TailwindSorterService {
     const sorted = sortClasses(classString, this.context, {
       removeDuplicates: !config.preserveDuplicates,
       collapseWhitespace: !config.preserveWhitespace,
+      logger: this.sortLogger,
     });
 
     const changed = classString !== sorted;

@@ -4,6 +4,20 @@ import type { ExtensionConfig, LanguageConfig } from './types';
 const CONFIG_SECTION = 'tailwindcss-sorter';
 
 /**
+ * Default function names that accept class strings
+ */
+const DEFAULT_CLASS_FUNCTIONS = [
+  'cn',
+  'clsx',
+  'twMerge',
+  'twJoin',
+  'cva',
+  'cx',
+  'merge',
+  'tw',
+];
+
+/**
  * Built-in language configurations
  */
 const BUILTIN_LANGUAGES: LanguageConfig[] = [
@@ -39,13 +53,7 @@ const BUILTIN_LANGUAGES: LanguageConfig[] = [
       { regex: 'className={`([^`]+)`}', captureGroup: 1 },
       { regex: 'className=\\{"([^"]+)"\\}', captureGroup: 1 },
       { regex: "className=\\{'([^']+)'\\}", captureGroup: 1 },
-      // String arguments in utility functions: cn(), clsx(), twMerge(), etc.
-      // Match strings that appear as function arguments (after ( or ,)
-      { regex: '(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*"([^"]+)"', captureGroup: 1 },
-      { regex: "(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*'([^']+)'", captureGroup: 1 },
-      // Match subsequent string arguments (after comma)
-      { regex: ',\\s*"([^"]*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^"]*)"', captureGroup: 1 },
-      { regex: ",\\s*'([^']*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^']*)'", captureGroup: 1 },
+      // Note: cn(), clsx(), twMerge() etc. are handled by classFunctions setting
     ],
   },
   {
@@ -58,13 +66,7 @@ const BUILTIN_LANGUAGES: LanguageConfig[] = [
       { regex: 'className={`([^`]+)`}', captureGroup: 1 },
       { regex: 'className=\\{"([^"]+)"\\}', captureGroup: 1 },
       { regex: "className=\\{'([^']+)'\\}", captureGroup: 1 },
-      // String arguments in utility functions: cn(), clsx(), twMerge(), etc.
-      // Match strings that appear as function arguments (after ( or ,)
-      { regex: '(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*"([^"]+)"', captureGroup: 1 },
-      { regex: "(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*'([^']+)'", captureGroup: 1 },
-      // Match subsequent string arguments (after comma)
-      { regex: ',\\s*"([^"]*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^"]*)"', captureGroup: 1 },
-      { regex: ",\\s*'([^']*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^']*)'", captureGroup: 1 },
+      // Note: cn(), clsx(), twMerge() etc. are handled by classFunctions setting
     ],
   },
   {
@@ -89,6 +91,7 @@ export function getConfig(): ExtensionConfig {
     preserveWhitespace: config.get<boolean>('preserveWhitespace', false),
     enabledLanguages: config.get<string[]>('enabledLanguages', []),
     customLanguages: config.get<LanguageConfig[]>('customLanguages', []),
+    classFunctions: config.get<string[]>('classFunctions', DEFAULT_CLASS_FUNCTIONS),
     runOnSave: config.get<boolean>('runOnSave', false),
     showCodeActions: config.get<boolean>('showCodeActions', true),
     showDiagnostics: config.get<boolean>('showDiagnostics', false),

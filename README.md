@@ -8,12 +8,13 @@ A VS Code extension that sorts Tailwind CSS classes in any file format using con
 
 - **Sort Tailwind classes** using the official recommended class order
 - **Any file format** - Configure custom regex patterns for any language
+- **Class utility functions** - Automatically sorts classes in `cn()`, `clsx()`, `twMerge()`, `cva()`, and other configurable utility functions
 - **Non-intrusive** - Won't interfere with existing formatters
 - **Code Actions** - Quick fix suggestions when cursor is on class attributes
 - **Commands** - Sort all classes or just selection with keyboard shortcuts
 - **Optional on-save** - Disabled by default, enable if you prefer automatic sorting
 - **Optional diagnostics** - Show hints for unsorted classes (disabled by default)
-- **Tailwind v3 and v4** - Supports both config file formats
+- **Tailwind v4** - Built for Tailwind CSS v4+ with native sorting support
 
 ## Installation
 
@@ -92,10 +93,7 @@ This ensures your formatter has the final say on code style (indentation, quotes
   // Enable/disable the extension
   "tailwindcss-sorter.enable": true,
 
-  // Path to tailwind.config.js (relative to workspace, empty for auto-detect)
-  "tailwindcss-sorter.tailwindConfigPath": "",
-
-  // Path to Tailwind v4 stylesheet (relative to workspace)
+  // Path to Tailwind v4 stylesheet (relative to workspace, empty for auto-detect)
   "tailwindcss-sorter.tailwindStylesheetPath": "",
 
   // Keep duplicate classes
@@ -114,7 +112,10 @@ This ensures your formatter has the final say on code style (indentation, quotes
   "tailwindcss-sorter.showDiagnostics": false,
 
   // Diagnostic severity: "hint", "information", "warning", "error"
-  "tailwindcss-sorter.diagnosticSeverity": "hint"
+  "tailwindcss-sorter.diagnosticSeverity": "hint",
+
+  // Function names that accept class strings (for cn, clsx, twMerge, etc.)
+  "tailwindcss-sorter.classFunctions": ["cn", "clsx", "twMerge", "twJoin", "cva", "cx", "merge", "tw"]
 }
 ```
 
@@ -183,6 +184,67 @@ You can use both settings together:
 
 This enables Ruby and HTML (with built-in patterns) **plus** Slim (with custom patterns).
 
+### Class Utility Functions
+
+The extension automatically detects and sorts classes within utility function calls like `cn()`, `clsx()`, `twMerge()`, and others. This works across all enabled languages.
+
+#### Default Functions
+
+By default, these function names are detected:
+- `cn` - Common in shadcn/ui projects
+- `clsx` - Popular classnames utility
+- `twMerge` / `twJoin` - tailwind-merge functions
+- `cva` - Class Variance Authority
+- `cx` - From classnames/bind
+- `merge` / `tw` - Common custom utilities
+
+#### How It Works
+
+The extension finds ALL string arguments within these function calls:
+
+```jsx
+// All three string arguments are sorted
+cn("px-4 flex", "bg-red-500 p-2", "text-white mt-4")
+
+// Works with conditional expressions
+cn(
+  "base-class flex",
+  isActive && "bg-blue-500 p-4",
+  disabled && "opacity-50 cursor-not-allowed"
+)
+
+// Works with arrays
+merge(["px-2 py-1", "bg-red flex"])
+
+// Works with cva variants
+cva("inline-flex items-center", {
+  variants: {
+    size: {
+      sm: "text-sm px-2",  // Sorted
+      lg: "text-lg px-6"   // Sorted
+    }
+  }
+})
+```
+
+#### Customizing Functions
+
+Add or remove function names to match your project:
+
+```json
+{
+  "tailwindcss-sorter.classFunctions": ["cn", "clsx", "myCustomClassHelper"]
+}
+```
+
+To disable class function detection entirely:
+
+```json
+{
+  "tailwindcss-sorter.classFunctions": []
+}
+```
+
 ## Ruby / Phlex Example
 
 For Ruby files using Phlex components:
@@ -218,15 +280,17 @@ This extension is designed to work alongside your existing tools:
 
 ## Tailwind CSS Version Support
 
-This extension supports both **Tailwind CSS v4** and **v3**.
+**This extension requires Tailwind CSS v4 or later.**
 
-### Tailwind v4 (Works Out of the Box)
+### Works Out of the Box
 
 The extension bundles Tailwind CSS v4, so **sorting works immediately** without any setup for projects using standard Tailwind classes. This is perfect for:
 
 - **Rails projects** using `tailwindcss-rails` gem
 - **Any project** without `tailwindcss` npm package installed
 - **Static HTML/ERB/Phlex files** with Tailwind classes
+
+### Custom Themes
 
 For v4 projects with custom themes, point to your CSS stylesheet:
 
@@ -236,60 +300,31 @@ For v4 projects with custom themes, point to your CSS stylesheet:
 }
 ```
 
-### Tailwind v3 (Requires Local Installation)
-
-For **Tailwind v3 projects** that need project-specific sorting (custom plugins, themes, etc.):
-
-1. Install Tailwind v3 in your project:
-   ```bash
-   npm install -D tailwindcss@3
-   ```
-
-2. The extension will automatically detect and use your project's `tailwind.config.js`
-
-If your config file has a non-standard name or location:
-
-```json
-{
-  "tailwindcss-sorter.tailwindConfigPath": "config/tailwind.config.js"
-}
-```
-
-### How Version Detection Works
-
-1. Extension looks for `tailwindcss` in your project's `node_modules`
-2. If found, it uses your project's Tailwind version and config
-3. If not found, it falls back to the bundled Tailwind v4 with default theme
-
-This means:
-- **No npm setup needed** for most users (v4 default sorting works)
-- **v3 users** who need custom config support just install tailwindcss locally
-- **v4 users** with custom themes point to their stylesheet
+The extension will load your custom theme and sort classes according to your configuration.
 
 ## Powered By
 
-This extension uses [@herb-tools/tailwind-class-sorter](https://www.npmjs.com/package/@herb-tools/tailwind-class-sorter), which implements the same sorting algorithm as the official [prettier-plugin-tailwindcss](https://github.com/tailwindlabs/prettier-plugin-tailwindcss) from Tailwind Labs.
+This extension uses a native implementation of the sorting algorithm from the official [prettier-plugin-tailwindcss](https://github.com/tailwindlabs/prettier-plugin-tailwindcss) by Tailwind Labs, leveraging Tailwind CSS v4's `__unstable__loadDesignSystem` API for accurate class ordering.
 
 ## Troubleshooting
 
 ### Classes not being sorted (only whitespace trimmed)?
 
-This usually means the Tailwind context didn't load properly:
+This usually means the Tailwind context did not load properly:
 
-1. **Check the Output panel** - View → Output → "Tailwind CSS Sorter" for errors
-2. **v4 projects**: Set `tailwindStylesheetPath` to your CSS file with `@import "tailwindcss"`
-3. **v3 projects**: Install `tailwindcss@3` in your project (`npm install -D tailwindcss@3`)
+1. **Check the Output panel** - View -> Output -> "Tailwind CSS Sorter" for errors
+2. Set `tailwindStylesheetPath` to your CSS file with `@import "tailwindcss"`
 
 ### Classes not being detected?
 
 1. Check that the language is enabled (see `enabledLanguages` setting)
 2. Verify your regex pattern matches the class syntax you're using
-3. Check the "Tailwind CSS Sorter" output channel for details
+3. For utility functions like `cn()`, ensure the function name is in `classFunctions` setting
+4. Check the "Tailwind CSS Sorter" output channel for details
 
 ### Wrong sort order?
 
-- **v3**: Make sure `tailwindConfigPath` points to your config file
-- **v4**: Make sure `tailwindStylesheetPath` points to your CSS entry file
+Make sure `tailwindStylesheetPath` points to your CSS entry file if you have custom theme configuration.
 
 ### Conflicts with other extensions?
 

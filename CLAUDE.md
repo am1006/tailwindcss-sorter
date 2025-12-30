@@ -50,7 +50,7 @@ src/
 └── test/          # Mocha tests (extension.test.ts for integration, matcher.test.ts for patterns)
 ```
 
-**Flow:** `extension.ts` → `config.ts` (get settings) → `matcher.ts` (find class strings via regex) → `sorter.ts` (sort using native tailwind module)
+**Flow:** `extension.ts` → `config.ts` (get settings) → `matcher.ts` (find class strings via regex + class functions) → `sorter.ts` (sort using native tailwind module)
 
 **Key design decisions:**
 - Non-intrusive: `runOnSave` and `showDiagnostics` are OFF by default to avoid conflicts with other formatters
@@ -61,6 +61,7 @@ src/
   - `enabledLanguages`: simple array to pick which built-in languages to enable (empty = all)
   - `customLanguages`: add new languages or override built-in patterns
   - Logic: built-in → filter by enabledLanguages → merge customLanguages
+- **Class functions matching:** The `classFunctions` setting allows global detection of utility functions like `cn()`, `merge()`, `twMerge()` etc. Uses balanced parenthesis tracking to find ALL string arguments within these function calls, handling nested calls, arrays, and conditional expressions.
 
 ## Testing the Extension
 

@@ -1,4 +1,4 @@
-import type { TailwindContext, SortOptions, SortClassListResult } from './types';
+import type { TailwindContext, SortOptions, SortClassListResult, SortLogger } from './types';
 
 /**
  * Helper to compare bigints for sorting
@@ -12,9 +12,18 @@ function bigSign(bigIntValue: bigint): number {
  */
 function reorderClasses(
   classList: string[],
-  context: TailwindContext
+  context: TailwindContext,
+  logger?: SortLogger
 ): [string, bigint | null][] {
   const orderedClasses = context.getClassOrder(classList);
+
+  // Log class order values for debugging
+  if (logger) {
+    const orderInfo = orderedClasses
+      .map(([cls, order]) => `${cls}:${order === null ? 'unknown' : order}`)
+      .join(' ');
+    logger.debug(`Class orders: ${orderInfo}`);
+  }
 
   return orderedClasses.sort(([nameA, a], [nameZ, z]) => {
     // Move `...` to the end of the list (for template literal spreads)
@@ -44,10 +53,11 @@ function reorderClasses(
 export function sortClassList(
   classList: string[],
   context: TailwindContext,
-  removeDuplicates: boolean = true
+  removeDuplicates: boolean = true,
+  logger?: SortLogger
 ): SortClassListResult {
   // Re-order classes based on the Tailwind CSS configuration
-  let orderedClasses = reorderClasses(classList, context);
+  let orderedClasses = reorderClasses(classList, context, logger);
 
   const removedIndices = new Set<number>();
 
@@ -95,6 +105,7 @@ export function sortClasses(
     ignoreLast = false,
     removeDuplicates = true,
     collapseWhitespace = { start: true, end: true },
+    logger,
   } = options;
 
   if (typeof classStr !== 'string' || classStr === '') {
@@ -142,7 +153,8 @@ export function sortClasses(
   const { classList, removedIndices } = sortClassList(
     classes,
     context,
-    removeDuplicates
+    removeDuplicates,
+    logger
   );
 
   // Remove whitespace that appeared before removed classes
