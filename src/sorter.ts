@@ -117,11 +117,16 @@ export class TailwindSorterService {
     }
 
     const sorted = this.sorter.sortClasses(classString);
+    const changed = classString !== sorted;
+
+    if (changed) {
+      this.outputChannel.appendLine(`Sorted: "${classString}" → "${sorted}"`);
+    }
 
     return {
       original: classString,
       sorted,
-      changed: classString !== sorted,
+      changed,
     };
   }
 
