@@ -15,3 +15,5 @@ CLAUDE.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+vendor/**
+.mocharc.json

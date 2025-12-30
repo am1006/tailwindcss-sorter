@@ -26,8 +26,6 @@ export interface LanguageConfig {
 export interface ExtensionConfig {
   /** Enable/disable the extension */
   enable: boolean;
-  /** Path to tailwind.config.js (relative to workspace) */
-  tailwindConfigPath: string;
   /** Path to Tailwind v4 stylesheet (relative to workspace) */
   tailwindStylesheetPath: string;
   /** Preserve duplicate classes */

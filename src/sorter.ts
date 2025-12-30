@@ -1,19 +1,37 @@
 import * as vscode from 'vscode';
-import { TailwindClassSorter } from '@herb-tools/tailwind-class-sorter';
 import type { ExtensionConfig, SortResult } from './types';
+import {
+  createContext,
+  sortClasses,
+  findEntryPoint,
+  type TailwindContext,
+  type ContextLogger,
+} from './tailwind';
 
 /**
- * Manages the TailwindClassSorter instance with caching and workspace awareness.
- * Provides efficient sorting by reusing the sorter instance when config hasn't changed.
+ * VS Code output channel logger adapter
+ */
+function createVSCodeLogger(outputChannel: vscode.OutputChannel): ContextLogger {
+  return {
+    log: (message: string) => outputChannel.appendLine(message),
+    error: (message: string) => outputChannel.appendLine(`[ERROR] ${message}`),
+  };
+}
+
+/**
+ * Manages the Tailwind context with caching and workspace awareness.
+ * Provides efficient sorting by reusing the context when config hasn't changed.
  */
 export class TailwindSorterService {
-  private sorter: TailwindClassSorter | null = null;
+  private context: TailwindContext | null = null;
   private currentConfigHash: string = '';
   private initPromise: Promise<void> | null = null;
   private outputChannel: vscode.OutputChannel;
+  private logger: ContextLogger;
 
   constructor(outputChannel: vscode.OutputChannel) {
     this.outputChannel = outputChannel;
+    this.logger = createVSCodeLogger(outputChannel);
   }
 
   /**
@@ -21,7 +39,6 @@ export class TailwindSorterService {
    */
   private computeConfigHash(config: ExtensionConfig, workspaceRoot: string): string {
     return JSON.stringify({
-      tailwindConfigPath: config.tailwindConfigPath,
       tailwindStylesheetPath: config.tailwindStylesheetPath,
       preserveDuplicates: config.preserveDuplicates,
       preserveWhitespace: config.preserveWhitespace,
@@ -43,14 +60,14 @@ export class TailwindSorterService {
   }
 
   /**
-   * Initialize or reinitialize the sorter if configuration has changed
+   * Initialize or reinitialize the context if configuration has changed
    */
   async initialize(config: ExtensionConfig): Promise<void> {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? process.cwd();
     const newHash = this.computeConfigHash(config, workspaceRoot);
 
-    // If config hasn't changed, reuse existing sorter
-    if (this.sorter && this.currentConfigHash === newHash) {
+    // If config hasn't changed, reuse existing context
+    if (this.context && this.currentConfigHash === newHash) {
       return;
     }
 
@@ -73,36 +90,25 @@ export class TailwindSorterService {
     workspaceRoot: string,
     configHash: string
   ): Promise<void> {
+    this.outputChannel.appendLine('Initializing Tailwind sorter...');
+
+    // Determine entry point
+    const tailwindStylesheet = this.resolvePath(config.tailwindStylesheetPath, workspaceRoot);
+    const foundEntryPoint = await findEntryPoint(workspaceRoot);
+    const entryPoint = tailwindStylesheet || foundEntryPoint || undefined;
+
     try {
-      this.outputChannel.appendLine('Initializing Tailwind sorter...');
+      const context = await createContext(
+        { entryPoint, workspaceRoot },
+        this.logger
+      );
 
-      const tailwindConfig = this.resolvePath(config.tailwindConfigPath, workspaceRoot);
-      const tailwindStylesheet = this.resolvePath(config.tailwindStylesheetPath, workspaceRoot);
-
-      this.sorter = await TailwindClassSorter.fromConfig({
-        tailwindConfig,
-        tailwindStylesheet,
-        tailwindPreserveDuplicates: config.preserveDuplicates,
-        tailwindPreserveWhitespace: config.preserveWhitespace,
-        baseDir: workspaceRoot,
-      });
-
+      this.context = context;
       this.currentConfigHash = configHash;
       this.outputChannel.appendLine('Tailwind sorter initialized successfully');
     } catch (error) {
       this.outputChannel.appendLine(`Failed to initialize Tailwind sorter: ${error}`);
-      // Create a basic sorter without config
-      try {
-        this.sorter = await TailwindClassSorter.fromConfig({
-          tailwindPreserveDuplicates: config.preserveDuplicates,
-          tailwindPreserveWhitespace: config.preserveWhitespace,
-        });
-        this.currentConfigHash = configHash;
-        this.outputChannel.appendLine('Initialized with default Tailwind config');
-      } catch (fallbackError) {
-        this.outputChannel.appendLine(`Failed to initialize fallback sorter: ${fallbackError}`);
-        throw fallbackError;
-      }
+      throw error;
     }
   }
 
@@ -112,11 +118,15 @@ export class TailwindSorterService {
   async sortClasses(classString: string, config: ExtensionConfig): Promise<SortResult> {
     await this.initialize(config);
 
-    if (!this.sorter) {
+    if (!this.context) {
       throw new Error('Tailwind sorter not initialized');
     }
 
-    const sorted = this.sorter.sortClasses(classString);
+    const sorted = sortClasses(classString, this.context, {
+      removeDuplicates: !config.preserveDuplicates,
+      collapseWhitespace: !config.preserveWhitespace,
+    });
+
     const changed = classString !== sorted;
 
     if (changed) {
@@ -142,7 +152,7 @@ export class TailwindSorterService {
    * Dispose of resources
    */
   dispose(): void {
-    this.sorter = null;
+    this.context = null;
     this.currentConfigHash = '';
   }
 }

@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-VS Code extension that sorts Tailwind CSS classes using configurable regex patterns. Built for Ruby/Phlex, ERB, HTML, JSX, TSX, and Vue with user-configurable language support.
+VS Code extension that sorts Tailwind CSS v4 classes using configurable regex patterns. Built for Ruby/Phlex, ERB, HTML, JSX, TSX, and Vue with user-configurable language support.
 
-Uses [@herb-tools/tailwind-class-sorter](https://www.npmjs.com/package/@herb-tools/tailwind-class-sorter) for sorting logic (same algorithm as prettier-plugin-tailwindcss).
+**Note: Only Tailwind CSS v4+ is supported.** Uses native sorting logic based on the official prettier-plugin-tailwindcss algorithm via Tailwind's `__unstable__loadDesignSystem` API.
 
 ## Commands
 
@@ -42,10 +42,15 @@ src/
 ├── config.ts      # VS Code settings reader, default language patterns
 ├── matcher.ts     # Regex-based class attribute finder using configurable patterns
 ├── sorter.ts      # TailwindSorterService wrapper with config caching
+├── tailwind/      # Native Tailwind CSS sorting module
+│   ├── index.ts   # Public exports
+│   ├── types.ts   # Type definitions (TailwindContext, SortOptions, etc.)
+│   ├── context.ts # Tailwind v4 design system context loader
+│   └── sorting.ts # Core sorting algorithm (sortClasses, sortClassList)
 └── test/          # Mocha tests (extension.test.ts for integration, matcher.test.ts for patterns)
 ```
 
-**Flow:** `extension.ts` → `config.ts` (get settings) → `matcher.ts` (find class strings via regex) → `sorter.ts` (sort using TailwindClassSorter)
+**Flow:** `extension.ts` → `config.ts` (get settings) → `matcher.ts` (find class strings via regex) → `sorter.ts` (sort using native tailwind module)
 
 **Key design decisions:**
 - Non-intrusive: `runOnSave` and `showDiagnostics` are OFF by default to avoid conflicts with other formatters

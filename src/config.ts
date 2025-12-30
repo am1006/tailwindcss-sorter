@@ -32,17 +32,39 @@ const BUILTIN_LANGUAGES: LanguageConfig[] = [
   {
     languageId: 'javascriptreact',
     patterns: [
+      // Static className="..." or className='...'
       { regex: 'className="([^"]+)"', captureGroup: 1 },
       { regex: "className='([^']+)'", captureGroup: 1 },
-      { regex: 'className={["\'`]([^"\'`]+)["\'`]}', captureGroup: 1 },
+      // className={`...`} or className={"..."} or className={'...'}
+      { regex: 'className={`([^`]+)`}', captureGroup: 1 },
+      { regex: 'className=\\{"([^"]+)"\\}', captureGroup: 1 },
+      { regex: "className=\\{'([^']+)'\\}", captureGroup: 1 },
+      // String arguments in utility functions: cn(), clsx(), twMerge(), etc.
+      // Match strings that appear as function arguments (after ( or ,)
+      { regex: '(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*"([^"]+)"', captureGroup: 1 },
+      { regex: "(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*'([^']+)'", captureGroup: 1 },
+      // Match subsequent string arguments (after comma)
+      { regex: ',\\s*"([^"]*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^"]*)"', captureGroup: 1 },
+      { regex: ",\\s*'([^']*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^']*)'", captureGroup: 1 },
     ],
   },
   {
     languageId: 'typescriptreact',
     patterns: [
+      // Static className="..." or className='...'
       { regex: 'className="([^"]+)"', captureGroup: 1 },
       { regex: "className='([^']+)'", captureGroup: 1 },
-      { regex: 'className={["\'`]([^"\'`]+)["\'`]}', captureGroup: 1 },
+      // className={`...`} or className={"..."} or className={'...'}
+      { regex: 'className={`([^`]+)`}', captureGroup: 1 },
+      { regex: 'className=\\{"([^"]+)"\\}', captureGroup: 1 },
+      { regex: "className=\\{'([^']+)'\\}", captureGroup: 1 },
+      // String arguments in utility functions: cn(), clsx(), twMerge(), etc.
+      // Match strings that appear as function arguments (after ( or ,)
+      { regex: '(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*"([^"]+)"', captureGroup: 1 },
+      { regex: "(?:cn|clsx|twMerge|twJoin|cva|cx)\\s*\\(\\s*'([^']+)'", captureGroup: 1 },
+      // Match subsequent string arguments (after comma)
+      { regex: ',\\s*"([^"]*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^"]*)"', captureGroup: 1 },
+      { regex: ",\\s*'([^']*(?:flex|grid|block|inline|hidden|absolute|relative|p-|m-|w-|h-|text-|bg-|border|rounded|shadow|gap-|space-|items-|justify-|hover:|focus:|dark:|sm:|md:|lg:)[^']*)'", captureGroup: 1 },
     ],
   },
   {
@@ -62,7 +84,6 @@ export function getConfig(): ExtensionConfig {
 
   return {
     enable: config.get<boolean>('enable', true),
-    tailwindConfigPath: config.get<string>('tailwindConfigPath', ''),
     tailwindStylesheetPath: config.get<string>('tailwindStylesheetPath', ''),
     preserveDuplicates: config.get<boolean>('preserveDuplicates', false),
     preserveWhitespace: config.get<boolean>('preserveWhitespace', false),

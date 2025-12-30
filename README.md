@@ -216,21 +216,80 @@ This extension is designed to work alongside your existing tools:
 2. When using `runOnSave`, sorting happens **before** formatters run
 3. Your formatter gets the final pass, ensuring consistent code style
 
+## Tailwind CSS Version Support
+
+This extension supports both **Tailwind CSS v4** and **v3**.
+
+### Tailwind v4 (Works Out of the Box)
+
+The extension bundles Tailwind CSS v4, so **sorting works immediately** without any setup for projects using standard Tailwind classes. This is perfect for:
+
+- **Rails projects** using `tailwindcss-rails` gem
+- **Any project** without `tailwindcss` npm package installed
+- **Static HTML/ERB/Phlex files** with Tailwind classes
+
+For v4 projects with custom themes, point to your CSS stylesheet:
+
+```json
+{
+  "tailwindcss-sorter.tailwindStylesheetPath": "app/assets/tailwind/application.css"
+}
+```
+
+### Tailwind v3 (Requires Local Installation)
+
+For **Tailwind v3 projects** that need project-specific sorting (custom plugins, themes, etc.):
+
+1. Install Tailwind v3 in your project:
+   ```bash
+   npm install -D tailwindcss@3
+   ```
+
+2. The extension will automatically detect and use your project's `tailwind.config.js`
+
+If your config file has a non-standard name or location:
+
+```json
+{
+  "tailwindcss-sorter.tailwindConfigPath": "config/tailwind.config.js"
+}
+```
+
+### How Version Detection Works
+
+1. Extension looks for `tailwindcss` in your project's `node_modules`
+2. If found, it uses your project's Tailwind version and config
+3. If not found, it falls back to the bundled Tailwind v4 with default theme
+
+This means:
+- **No npm setup needed** for most users (v4 default sorting works)
+- **v3 users** who need custom config support just install tailwindcss locally
+- **v4 users** with custom themes point to their stylesheet
+
 ## Powered By
 
 This extension uses [@herb-tools/tailwind-class-sorter](https://www.npmjs.com/package/@herb-tools/tailwind-class-sorter), which implements the same sorting algorithm as the official [prettier-plugin-tailwindcss](https://github.com/tailwindlabs/prettier-plugin-tailwindcss) from Tailwind Labs.
 
 ## Troubleshooting
 
-### Classes not being sorted?
+### Classes not being sorted (only whitespace trimmed)?
 
-1. Check that the language is configured in `tailwindcss-sorter.languages`
+This usually means the Tailwind context didn't load properly:
+
+1. **Check the Output panel** - View → Output → "Tailwind CSS Sorter" for errors
+2. **v4 projects**: Set `tailwindStylesheetPath` to your CSS file with `@import "tailwindcss"`
+3. **v3 projects**: Install `tailwindcss@3` in your project (`npm install -D tailwindcss@3`)
+
+### Classes not being detected?
+
+1. Check that the language is enabled (see `enabledLanguages` setting)
 2. Verify your regex pattern matches the class syntax you're using
-3. Check the "Tailwind CSS Sorter" output channel for errors
+3. Check the "Tailwind CSS Sorter" output channel for details
 
 ### Wrong sort order?
 
-Make sure your `tailwind.config.js` path is correct, or the extension will use default Tailwind order.
+- **v3**: Make sure `tailwindConfigPath` points to your config file
+- **v4**: Make sure `tailwindStylesheetPath` points to your CSS entry file
 
 ### Conflicts with other extensions?
 

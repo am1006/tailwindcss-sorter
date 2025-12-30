@@ -1,7 +1,7 @@
 {
   "name": "tailwindcss-class-sorter",
   "displayName": "Tailwind CSS Class Sorter",
-  "description": "Sort Tailwind CSS classes in any file format using configurable regex patterns. Works with Ruby/Phlex, ERB, React, Vue, and more.",
+  "description": "Sort Tailwind CSS v4 classes in any file format using configurable regex patterns. Works with Ruby/Phlex, ERB, React, Vue, and more.",
   "version": "0.0.2",
   "publisher": "am1006",
   "repository": {
@@ -52,11 +52,6 @@
           "default": true,
           "description": "Enable/disable the Tailwind CSS class sorter extension."
         },
-        "tailwindcss-sorter.tailwindConfigPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to the Tailwind CSS config file (relative to workspace root). Leave empty for auto-detection."
-        },
         "tailwindcss-sorter.tailwindStylesheetPath": {
           "type": "string",
           "default": "",
@@ -78,11 +73,25 @@
           "description": "Which built-in languages to enable. Empty array = all built-in languages. Available: ruby, erb, html, javascriptreact, typescriptreact, vue.",
           "items": {
             "type": "string",
-            "enum": ["ruby", "erb", "html", "javascriptreact", "typescriptreact", "vue"]
+            "enum": [
+              "ruby",
+              "erb",
+              "html",
+              "javascriptreact",
+              "typescriptreact",
+              "vue"
+            ]
           },
           "examples": [
-            ["ruby", "erb"],
-            ["html", "javascriptreact", "typescriptreact"]
+            [
+              "ruby",
+              "erb"
+            ],
+            [
+              "html",
+              "javascriptreact",
+              "typescriptreact"
+            ]
           ]
         },
         "tailwindcss-sorter.customLanguages": {
@@ -111,11 +120,16 @@
                       "description": "The capture group index containing the class string"
                     }
                   },
-                  "required": ["regex"]
+                  "required": [
+                    "regex"
+                  ]
                 }
               }
             },
-            "required": ["languageId", "patterns"]
+            "required": [
+              "languageId",
+              "patterns"
+            ]
           }
         },
         "tailwindcss-sorter.runOnSave": {
@@ -135,7 +149,12 @@
         },
         "tailwindcss-sorter.diagnosticSeverity": {
           "type": "string",
-          "enum": ["hint", "information", "warning", "error"],
+          "enum": [
+            "hint",
+            "information",
+            "warning",
+            "error"
+          ],
           "default": "hint",
           "description": "Severity level for unsorted class diagnostics."
         }
@@ -162,11 +181,13 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "test:unit": "npm run compile-tests && mocha 'out/test/patterns/**/*.test.js' 'out/test/sorting/**/*.test.js'"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
+    "mocha": "^10.8.2",
     "@types/vscode": "^1.105.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
@@ -177,6 +198,6 @@
     "typescript-eslint": "^8.48.1"
   },
   "dependencies": {
-    "@herb-tools/tailwind-class-sorter": "^0.8.6"
+    "tailwindcss": "^4.1.18"
   }
 }
