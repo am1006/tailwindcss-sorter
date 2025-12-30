@@ -58,11 +58,19 @@ export async function findEntryPoint(workspaceRoot: string): Promise<string | nu
 }
 
 /**
+ * Get the path to bundled Tailwind CSS files.
+ * These are copied to dist/tailwindcss/ during the build process.
+ */
+function getBundledTailwindPath(): string {
+  // __dirname in the bundled extension.js will be the dist folder
+  return path.join(__dirname, 'tailwindcss');
+}
+
+/**
  * Get the default Tailwind v4 theme path from the bundled package
  */
 export function getDefaultThemePath(): string {
-  const tailwindPkgPath = path.dirname(require.resolve('tailwindcss/package.json'));
-  return path.join(tailwindPkgPath, 'theme.css');
+  return path.join(getBundledTailwindPath(), 'theme.css');
 }
 
 /**
@@ -112,30 +120,36 @@ export async function createContext(
 
       // Handle @import directives
       loadStylesheet: async (id: string, base: string) => {
+        logger.log(`loadStylesheet called: id="${id}", base="${base}"`);
         // First, try relative resolution
         try {
           const resolved = path.resolve(base, id);
           const content = await fs.readFile(resolved, 'utf-8');
+          logger.log(`Loaded stylesheet from relative path: ${resolved}`);
           return { base: path.dirname(resolved), content };
         } catch {
-          // Try node_modules resolution for tailwindcss imports
+          // Try bundled tailwindcss files (copied to dist/tailwindcss/ during build)
           try {
-            // Handle bare "tailwindcss" import (resolves to tailwindcss/index.css)
-            // and "tailwindcss/..." imports
-            let moduleId: string;
+            let cssPath: string;
+            const bundledPath = getBundledTailwindPath();
+
             if (id === 'tailwindcss') {
-              moduleId = 'tailwindcss/index.css';
+              cssPath = path.join(bundledPath, 'index.css');
+              logger.log(`Resolved tailwindcss to bundled: ${cssPath}`);
             } else if (id.startsWith('tailwindcss/')) {
-              moduleId = id;
+              const subpath = id.slice('tailwindcss/'.length);
+              cssPath = path.join(bundledPath, subpath);
+              logger.log(`Resolved tailwindcss subpath to bundled: ${cssPath}`);
             } else {
-              // Try as-is for other packages
-              moduleId = id;
+              // For other packages, try require.resolve as fallback
+              cssPath = require.resolve(id);
+              logger.log(`Resolved other package to: ${cssPath}`);
             }
-            const pkgPath = require.resolve(moduleId);
-            const content = await fs.readFile(pkgPath, 'utf-8');
-            return { base: path.dirname(pkgPath), content };
-          } catch {
-            logger.error(`Could not load stylesheet: ${id}`);
+            const content = await fs.readFile(cssPath, 'utf-8');
+            logger.log(`Successfully loaded: ${cssPath} (${content.length} bytes)`);
+            return { base: path.dirname(cssPath), content };
+          } catch (e) {
+            logger.error(`Could not load stylesheet: ${id} - ${e}`);
             return { base, content: '' };
           }
         }
