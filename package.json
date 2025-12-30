@@ -2,7 +2,7 @@
   "name": "tailwindcss-class-sorter",
   "displayName": "Tailwind CSS Class Sorter",
   "description": "Sort Tailwind CSS classes in any file format using configurable regex patterns. Works with Ruby/Phlex, ERB, React, Vue, and more.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "your-publisher-name",
   "repository": {
     "type": "git",
@@ -72,107 +72,29 @@
           "default": false,
           "description": "Preserve whitespace around classes when sorting."
         },
-        "tailwindcss-sorter.languages": {
+        "tailwindcss-sorter.enabledLanguages": {
           "type": "array",
-          "default": [
-            {
-              "languageId": "ruby",
-              "patterns": [
-                {
-                  "regex": "class:\\s*[\"']([^\"']+)[\"']",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "classes:\\s*[\"']([^\"']+)[\"']",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "class:\\s*%w\\[([^\\]]+)\\]",
-                  "captureGroup": 1
-                }
-              ]
-            },
-            {
-              "languageId": "erb",
-              "patterns": [
-                {
-                  "regex": "class=\"([^\"]+)\"",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "class='([^']+)'",
-                  "captureGroup": 1
-                }
-              ]
-            },
-            {
-              "languageId": "html",
-              "patterns": [
-                {
-                  "regex": "class=\"([^\"]+)\"",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "class='([^']+)'",
-                  "captureGroup": 1
-                }
-              ]
-            },
-            {
-              "languageId": "javascriptreact",
-              "patterns": [
-                {
-                  "regex": "className=\"([^\"]+)\"",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "className='([^']+)'",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "className={[\"'`]([^\"'`]+)[\"'`]}",
-                  "captureGroup": 1
-                }
-              ]
-            },
-            {
-              "languageId": "typescriptreact",
-              "patterns": [
-                {
-                  "regex": "className=\"([^\"]+)\"",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "className='([^']+)'",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": "className={[\"'`]([^\"'`]+)[\"'`]}",
-                  "captureGroup": 1
-                }
-              ]
-            },
-            {
-              "languageId": "vue",
-              "patterns": [
-                {
-                  "regex": "class=\"([^\"]+)\"",
-                  "captureGroup": 1
-                },
-                {
-                  "regex": ":class=\"'([^']+)'\"",
-                  "captureGroup": 1
-                }
-              ]
-            }
-          ],
-          "description": "Language configurations with regex patterns for finding class attributes.",
+          "default": [],
+          "description": "Which built-in languages to enable. Empty array = all built-in languages. Available: ruby, erb, html, javascriptreact, typescriptreact, vue.",
+          "items": {
+            "type": "string",
+            "enum": ["ruby", "erb", "html", "javascriptreact", "typescriptreact", "vue"]
+          },
+          "examples": [
+            ["ruby", "erb"],
+            ["html", "javascriptreact", "typescriptreact"]
+          ]
+        },
+        "tailwindcss-sorter.customLanguages": {
+          "type": "array",
+          "default": [],
+          "description": "Custom language patterns. Use to add new languages or override built-in patterns.",
           "items": {
             "type": "object",
             "properties": {
               "languageId": {
                 "type": "string",
-                "description": "VS Code language identifier (e.g., 'ruby', 'html', 'javascriptreact')"
+                "description": "VS Code language identifier (e.g., 'ruby', 'html', 'slim')"
               },
               "patterns": {
                 "type": "array",

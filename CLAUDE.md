@@ -52,7 +52,10 @@ src/
 - `onWillSaveTextDocument` ensures sorting runs **before** formatters (format on save), so formatters get final say on code style
 - Code action provider offers quick fixes only when classes need sorting
 - Sorter instance is cached and only reinitialized when config changes (hash comparison)
-- **Language allowlist:** Extension only processes languages in `tailwindcss-sorter.languages` - users can override to enable only specific languages
+- **Two-tier language config:**
+  - `enabledLanguages`: simple array to pick which built-in languages to enable (empty = all)
+  - `customLanguages`: add new languages or override built-in patterns
+  - Logic: built-in → filter by enabledLanguages → merge customLanguages
 
 ## Testing the Extension
 

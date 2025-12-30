@@ -4,12 +4,25 @@ All notable changes to the "Tailwind CSS Class Sorter" extension will be documen
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [0.0.1] - Initial Release
+## [0.0.2] - 2024-12-30
+
+### Changed
+
+- **Simplified language configuration:**
+  - New `enabledLanguages` setting: just list language IDs to enable (e.g., `["ruby", "erb"]`) - no regex needed
+  - New `customLanguages` setting: add new languages or override built-in patterns
+  - Removed the old `languages` setting that required full pattern definitions
+
+### Improved
+
+- Better documentation for local installation (VSIX)
+- Clarified that on-save sorting runs **before** formatters, ensuring formatters have final say on code style
+
+## [0.0.1] - 2024-12-30 - Initial release
 
 ### Added
 
 - Sort Tailwind CSS classes using the official recommended class order
-- Support for configurable regex patterns per language
 - Pre-configured patterns for Ruby/Phlex, ERB, HTML, JSX, TSX, and Vue
 - Commands: "Sort Classes in Document" and "Sort Classes in Selection"
 - Code actions (quick fixes) for sorting classes at cursor position
@@ -20,7 +33,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - Configurable options: preserve duplicates, preserve whitespace
 - Output channel for debugging
 
-### Notes
+### Design Principles
 
-- Designed to be non-intrusive and work alongside existing formatters
-- On-save sorting is disabled by default to avoid conflicts with other formatters
+- Non-intrusive: on-save and diagnostics are OFF by default
+- Works alongside existing formatters (ruby-lsp, Prettier, etc.)

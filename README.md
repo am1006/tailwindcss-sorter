@@ -120,86 +120,36 @@ This ensures your formatter has the final say on code style (indentation, quotes
 
 ### Language Configuration
 
-The extension comes pre-configured for common languages. You can customize or add more:
+By default, the extension is enabled for all built-in languages. You can control which languages to enable.
+
+#### Built-in Languages
+
+- `ruby` - `class: "..."`, `classes: "..."`, `class: %w[...]`
+- `erb` - `class="..."`, `class='...'`
+- `html` - `class="..."`, `class='...'`
+- `javascriptreact` - `className="..."`, `className={'...'}`
+- `typescriptreact` - `className="..."`, `className={'...'}`
+- `vue` - `class="..."`, `:class="'...'"`
+
+#### Enable Only Specific Languages
+
+To enable sorting for **only certain languages**, use `enabledLanguages`:
 
 ```json
 {
-  "tailwindcss-sorter.languages": [
-    {
-      "languageId": "ruby",
-      "patterns": [
-        {
-          "regex": "class:\\s*[\"']([^\"']+)[\"']",
-          "captureGroup": 1
-        },
-        {
-          "regex": "classes:\\s*[\"']([^\"']+)[\"']",
-          "captureGroup": 1
-        },
-        {
-          "regex": "class:\\s*%w\\[([^\\]]+)\\]",
-          "captureGroup": 1
-        }
-      ]
-    },
-    {
-      "languageId": "html",
-      "patterns": [
-        {
-          "regex": "class=\"([^\"]+)\"",
-          "captureGroup": 1
-        }
-      ]
-    }
-  ]
+  "tailwindcss-sorter.enabledLanguages": ["ruby", "erb"]
 }
 ```
 
-### Pre-configured Languages
+This enables sorting **only for Ruby and ERB files** - all other languages will be ignored. No need to define any regex patterns!
 
-The extension **only works for languages listed in `tailwindcss-sorter.languages`**. By default, it includes:
+#### Adding Custom Languages
 
-- **Ruby** (`ruby`) - `class: "..."`, `classes: "..."`, `class: %w[...]`
-- **ERB** (`erb`) - `class="..."`, `class='...'`
-- **HTML** (`html`) - `class="..."`, `class='...'`
-- **JavaScript React** (`javascriptreact`) - `className="..."`, `className={'...'}`
-- **TypeScript React** (`typescriptreact`) - `className="..."`, `className={'...'}`
-- **Vue** (`vue`) - `class="..."`, `:class="'...'"`
-
-If a language is not in this list, the extension will not process it.
-
-### Customizing Enabled Languages
-
-To use **only specific languages**, override `tailwindcss-sorter.languages` with just the ones you want:
+To add a new language (or override built-in patterns), use `customLanguages`:
 
 ```json
 {
-  "tailwindcss-sorter.languages": [
-    {
-      "languageId": "ruby",
-      "patterns": [
-        { "regex": "class:\\s*[\"']([^\"']+)[\"']", "captureGroup": 1 },
-        { "regex": "classes:\\s*[\"']([^\"']+)[\"']", "captureGroup": 1 },
-        { "regex": "class:\\s*%w\\[([^\\]]+)\\]", "captureGroup": 1 }
-      ]
-    }
-  ]
-}
-```
-
-This configuration enables sorting **only for Ruby files** - all other languages (HTML, JSX, etc.) will be ignored.
-
-### Adding Custom Languages
-
-To add support for a new language:
-
-1. Find the VS Code language identifier (shown in bottom-right of VS Code when editing a file)
-2. Create regex patterns that match class attributes in that language
-3. Add to your settings:
-
-```json
-{
-  "tailwindcss-sorter.languages": [
+  "tailwindcss-sorter.customLanguages": [
     {
       "languageId": "slim",
       "patterns": [
@@ -212,6 +162,26 @@ To add support for a new language:
   ]
 }
 ```
+
+You can also use `customLanguages` to **override** a built-in language's patterns if needed.
+
+#### Combining Both Settings
+
+You can use both settings together:
+
+```json
+{
+  "tailwindcss-sorter.enabledLanguages": ["ruby", "html"],
+  "tailwindcss-sorter.customLanguages": [
+    {
+      "languageId": "slim",
+      "patterns": [{ "regex": "class=[\"']([^\"']+)[\"']", "captureGroup": 1 }]
+    }
+  ]
+}
+```
+
+This enables Ruby and HTML (with built-in patterns) **plus** Slim (with custom patterns).
 
 ## Ruby / Phlex Example
 

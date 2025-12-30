@@ -34,8 +34,10 @@ export interface ExtensionConfig {
   preserveDuplicates: boolean;
   /** Preserve whitespace around classes */
   preserveWhitespace: boolean;
-  /** Language configurations */
-  languages: LanguageConfig[];
+  /** Which built-in languages to enable (empty array = all) */
+  enabledLanguages: string[];
+  /** Custom language patterns (add new or override built-in) */
+  customLanguages: LanguageConfig[];
   /** Auto-sort on save */
   runOnSave: boolean;
   /** Show code actions for sorting */
