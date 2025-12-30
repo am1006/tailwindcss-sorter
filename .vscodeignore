@@ -3,10 +3,13 @@
 out/**
 node_modules/**
 src/**
+bin/**
+.claude/**
 .gitignore
 .yarnrc
 esbuild.js
 vsc-extension-quickstart.md
+CLAUDE.md
 **/tsconfig.json
 **/eslint.config.mjs
 **/*.map
