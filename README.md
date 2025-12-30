@@ -17,11 +17,37 @@ A VS Code extension that sorts Tailwind CSS classes in any file format using con
 
 ## Installation
 
+### From Marketplace
+
 1. Open VS Code
 2. Press `Ctrl+P` / `Cmd+P`
 3. Type `ext install your-publisher-name.tailwindcss-class-sorter`
 
 Or search for "Tailwind CSS Class Sorter" in the Extensions view.
+
+### Local Installation (without publishing)
+
+1. Clone the repository and install dependencies:
+   ```bash
+   git clone https://github.com/your-username/tailwindcss-sorter.git
+   cd tailwindcss-sorter
+   npm install
+   ```
+
+2. Build and package the extension:
+   ```bash
+   npm run package
+   npx @vscode/vsce package
+   ```
+
+3. Install the generated `.vsix` file:
+   - In VS Code, press `Ctrl+Shift+P` / `Cmd+Shift+P`
+   - Type "Extensions: Install from VSIX..."
+   - Select the generated `tailwindcss-class-sorter-0.0.1.vsix` file
+
+Alternatively, during development:
+- Open this folder in VS Code
+- Press `F5` to launch the Extension Development Host
 
 ## Usage
 
@@ -45,7 +71,17 @@ If you want automatic sorting on save:
 }
 ```
 
-**Note:** This is disabled by default to avoid conflicts with other formatters. Most users prefer using the command or code actions.
+**How it works with Format on Save:**
+
+When `runOnSave` is enabled, this extension sorts classes **before** your formatter runs. The order is:
+
+1. **This extension** sorts Tailwind classes (via `onWillSaveTextDocument`)
+2. **Your formatter** (Prettier, ruby-lsp, etc.) formats the file (via `editor.formatOnSave`)
+3. **File is saved**
+
+This ensures your formatter has the final say on code style (indentation, quotes, etc.) while classes remain sorted.
+
+**Note:** This is disabled by default. Most users prefer using the command (`Cmd+Alt+T`) or code actions for more control.
 
 ## Configuration
 
@@ -121,14 +157,37 @@ The extension comes pre-configured for common languages. You can customize or ad
 
 ### Pre-configured Languages
 
-The extension includes patterns for:
+The extension **only works for languages listed in `tailwindcss-sorter.languages`**. By default, it includes:
 
-- **Ruby** - `class: "..."`, `classes: "..."`, `class: %w[...]`
-- **ERB** - `class="..."`, `class='...'`
-- **HTML** - `class="..."`, `class='...'`
-- **JavaScript React (JSX)** - `className="..."`, `className={'...'}`
-- **TypeScript React (TSX)** - `className="..."`, `className={'...'}`
-- **Vue** - `class="..."`, `:class="'...'"`
+- **Ruby** (`ruby`) - `class: "..."`, `classes: "..."`, `class: %w[...]`
+- **ERB** (`erb`) - `class="..."`, `class='...'`
+- **HTML** (`html`) - `class="..."`, `class='...'`
+- **JavaScript React** (`javascriptreact`) - `className="..."`, `className={'...'}`
+- **TypeScript React** (`typescriptreact`) - `className="..."`, `className={'...'}`
+- **Vue** (`vue`) - `class="..."`, `:class="'...'"`
+
+If a language is not in this list, the extension will not process it.
+
+### Customizing Enabled Languages
+
+To use **only specific languages**, override `tailwindcss-sorter.languages` with just the ones you want:
+
+```json
+{
+  "tailwindcss-sorter.languages": [
+    {
+      "languageId": "ruby",
+      "patterns": [
+        { "regex": "class:\\s*[\"']([^\"']+)[\"']", "captureGroup": 1 },
+        { "regex": "classes:\\s*[\"']([^\"']+)[\"']", "captureGroup": 1 },
+        { "regex": "class:\\s*%w\\[([^\\]]+)\\]", "captureGroup": 1 }
+      ]
+    }
+  ]
+}
+```
+
+This configuration enables sorting **only for Ruby files** - all other languages (HTML, JSX, etc.) will be ignored.
 
 ### Adding Custom Languages
 
@@ -176,12 +235,16 @@ The extension recognizes these Ruby patterns by default:
 
 This extension is designed to work alongside your existing tools:
 
-- **ruby-lsp** - No conflicts, different concerns
-- **Prettier** - No conflicts when using commands/code actions
+- **ruby-lsp** - No conflicts; this extension runs first, then ruby-lsp formats
+- **Prettier** - No conflicts; class sorting happens before Prettier formatting
 - **ESLint** - No conflicts
 - **Rubocop** - No conflicts
 
-The extension **only modifies** the class string content, never the surrounding syntax.
+**Why this works safely:**
+
+1. The extension **only modifies** the class string content, never the surrounding syntax
+2. When using `runOnSave`, sorting happens **before** formatters run
+3. Your formatter gets the final pass, ensuring consistent code style
 
 ## Powered By
 
@@ -201,8 +264,9 @@ Make sure your `tailwind.config.js` path is correct, or the extension will use d
 
 ### Conflicts with other extensions?
 
-- Keep `runOnSave: false` (default) and use commands instead
-- Or configure your formatter to run first, then this extension
+This extension is designed to avoid conflicts:
+- Sorting runs **before** formatters when using `runOnSave`
+- If you still experience issues, use the command (`Cmd+Alt+T`) or code actions instead of `runOnSave`
 
 ## Contributing
 
