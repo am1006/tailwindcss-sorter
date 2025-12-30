@@ -3,10 +3,10 @@
   "displayName": "Tailwind CSS Class Sorter",
   "description": "Sort Tailwind CSS classes in any file format using configurable regex patterns. Works with Ruby/Phlex, ERB, React, Vue, and more.",
   "version": "0.0.2",
-  "publisher": "your-publisher-name",
+  "publisher": "am1006",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/tailwindcss-sorter"
+    "url": "https://github.com/am1006/tailwindcss-sorter"
   },
   "icon": "images/icon.png",
   "engines": {
