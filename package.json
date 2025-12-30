@@ -1,21 +1,230 @@
 {
-  "name": "tailwindcss-sorter",
-  "displayName": "tailwindcss-sorter",
-  "description": "Sorting tailwindcss anywhere",
+  "name": "tailwindcss-class-sorter",
+  "displayName": "Tailwind CSS Class Sorter",
+  "description": "Sort Tailwind CSS classes in any file format using configurable regex patterns. Works with Ruby/Phlex, ERB, React, Vue, and more.",
   "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/tailwindcss-sorter"
+  },
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.107.0"
   },
   "categories": [
+    "Formatters",
     "Other"
   ],
-  "activationEvents": [],
+  "keywords": [
+    "tailwindcss",
+    "tailwind",
+    "css",
+    "sort",
+    "class",
+    "phlex",
+    "ruby",
+    "rails",
+    "erb",
+    "react",
+    "vue"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "tailwindcss-sorter.helloWorld",
-        "title": "Hello World"
+        "command": "tailwindcss-sorter.sortClasses",
+        "title": "Tailwind CSS: Sort Classes in Document"
+      },
+      {
+        "command": "tailwindcss-sorter.sortClassesInSelection",
+        "title": "Tailwind CSS: Sort Classes in Selection"
+      }
+    ],
+    "configuration": {
+      "title": "Tailwind CSS Class Sorter",
+      "properties": {
+        "tailwindcss-sorter.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable the Tailwind CSS class sorter extension."
+        },
+        "tailwindcss-sorter.tailwindConfigPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Tailwind CSS config file (relative to workspace root). Leave empty for auto-detection."
+        },
+        "tailwindcss-sorter.tailwindStylesheetPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Tailwind CSS v4 stylesheet (relative to workspace root). Leave empty for auto-detection."
+        },
+        "tailwindcss-sorter.preserveDuplicates": {
+          "type": "boolean",
+          "default": false,
+          "description": "Preserve duplicate classes when sorting."
+        },
+        "tailwindcss-sorter.preserveWhitespace": {
+          "type": "boolean",
+          "default": false,
+          "description": "Preserve whitespace around classes when sorting."
+        },
+        "tailwindcss-sorter.languages": {
+          "type": "array",
+          "default": [
+            {
+              "languageId": "ruby",
+              "patterns": [
+                {
+                  "regex": "class:\\s*[\"']([^\"']+)[\"']",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "classes:\\s*[\"']([^\"']+)[\"']",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "class:\\s*%w\\[([^\\]]+)\\]",
+                  "captureGroup": 1
+                }
+              ]
+            },
+            {
+              "languageId": "erb",
+              "patterns": [
+                {
+                  "regex": "class=\"([^\"]+)\"",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "class='([^']+)'",
+                  "captureGroup": 1
+                }
+              ]
+            },
+            {
+              "languageId": "html",
+              "patterns": [
+                {
+                  "regex": "class=\"([^\"]+)\"",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "class='([^']+)'",
+                  "captureGroup": 1
+                }
+              ]
+            },
+            {
+              "languageId": "javascriptreact",
+              "patterns": [
+                {
+                  "regex": "className=\"([^\"]+)\"",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "className='([^']+)'",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "className={[\"'`]([^\"'`]+)[\"'`]}",
+                  "captureGroup": 1
+                }
+              ]
+            },
+            {
+              "languageId": "typescriptreact",
+              "patterns": [
+                {
+                  "regex": "className=\"([^\"]+)\"",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "className='([^']+)'",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": "className={[\"'`]([^\"'`]+)[\"'`]}",
+                  "captureGroup": 1
+                }
+              ]
+            },
+            {
+              "languageId": "vue",
+              "patterns": [
+                {
+                  "regex": "class=\"([^\"]+)\"",
+                  "captureGroup": 1
+                },
+                {
+                  "regex": ":class=\"'([^']+)'\"",
+                  "captureGroup": 1
+                }
+              ]
+            }
+          ],
+          "description": "Language configurations with regex patterns for finding class attributes.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "languageId": {
+                "type": "string",
+                "description": "VS Code language identifier (e.g., 'ruby', 'html', 'javascriptreact')"
+              },
+              "patterns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "regex": {
+                      "type": "string",
+                      "description": "Regular expression to match class attributes"
+                    },
+                    "captureGroup": {
+                      "type": "number",
+                      "default": 1,
+                      "description": "The capture group index containing the class string"
+                    }
+                  },
+                  "required": ["regex"]
+                }
+              }
+            },
+            "required": ["languageId", "patterns"]
+          }
+        },
+        "tailwindcss-sorter.runOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically sort Tailwind classes when saving a file. Note: This is disabled by default to avoid conflicts with other formatters. Consider using the command or code actions instead."
+        },
+        "tailwindcss-sorter.showCodeActions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show 'Sort Tailwind Classes' as a code action (quick fix) when the cursor is on a class attribute."
+        },
+        "tailwindcss-sorter.showDiagnostics": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show diagnostic hints when classes are not sorted. Disabled by default to be non-intrusive."
+        },
+        "tailwindcss-sorter.diagnosticSeverity": {
+          "type": "string",
+          "enum": ["hint", "information", "warning", "error"],
+          "default": "hint",
+          "description": "Severity level for unsorted class diagnostics."
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "tailwindcss-sorter.sortClasses",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "editorTextFocus"
       }
     ]
   },

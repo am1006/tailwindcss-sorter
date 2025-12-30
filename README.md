@@ -1,71 +1,213 @@
-# tailwindcss-sorter README
+# Tailwind CSS Class Sorter
 
-This is the README for your extension "tailwindcss-sorter". After writing up a brief description, we recommend including the following sections.
+A VS Code extension that sorts Tailwind CSS classes in any file format using configurable regex patterns. Works with Ruby/Phlex, ERB, React, Vue, Angular, and more.
+
+**Non-intrusive by design** - This extension is built to complement your existing workflow. It doesn't interfere with formatters like Prettier, ruby-lsp, or any other language server. You control when and how classes are sorted.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Sort Tailwind classes** using the official recommended class order
+- **Any file format** - Configure custom regex patterns for any language
+- **Non-intrusive** - Won't interfere with existing formatters
+- **Code Actions** - Quick fix suggestions when cursor is on class attributes
+- **Commands** - Sort all classes or just selection with keyboard shortcuts
+- **Optional on-save** - Disabled by default, enable if you prefer automatic sorting
+- **Optional diagnostics** - Show hints for unsorted classes (disabled by default)
+- **Tailwind v3 and v4** - Supports both config file formats
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Open VS Code
+2. Press `Ctrl+P` / `Cmd+P`
+3. Type `ext install your-publisher-name.tailwindcss-class-sorter`
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Or search for "Tailwind CSS Class Sorter" in the Extensions view.
 
-## Requirements
+## Usage
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### Commands
 
-## Extension Settings
+- **`Tailwind CSS: Sort Classes in Document`** - Sort all Tailwind classes in the current file
+  - Keyboard shortcut: `Ctrl+Alt+T` / `Cmd+Alt+T`
+- **`Tailwind CSS: Sort Classes in Selection`** - Sort classes only in selected text
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+### Code Actions
 
-For example:
+When your cursor is on a class attribute with unsorted classes, you'll see a quick fix option "Sort Tailwind CSS classes" in the lightbulb menu (`Ctrl+.` / `Cmd+.`).
 
-This extension contributes the following settings:
+### On-Save (Optional)
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+If you want automatic sorting on save:
 
-## Known Issues
+```json
+{
+  "tailwindcss-sorter.runOnSave": true
+}
+```
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+**Note:** This is disabled by default to avoid conflicts with other formatters. Most users prefer using the command or code actions.
 
-## Release Notes
+## Configuration
 
-Users appreciate release notes as you update your extension.
+### Basic Settings
 
-### 1.0.0
+```json
+{
+  // Enable/disable the extension
+  "tailwindcss-sorter.enable": true,
 
-Initial release of ...
+  // Path to tailwind.config.js (relative to workspace, empty for auto-detect)
+  "tailwindcss-sorter.tailwindConfigPath": "",
 
-### 1.0.1
+  // Path to Tailwind v4 stylesheet (relative to workspace)
+  "tailwindcss-sorter.tailwindStylesheetPath": "",
 
-Fixed issue #.
+  // Keep duplicate classes
+  "tailwindcss-sorter.preserveDuplicates": false,
 
-### 1.1.0
+  // Preserve whitespace around classes
+  "tailwindcss-sorter.preserveWhitespace": false,
 
-Added features X, Y, and Z.
+  // Auto-sort on save (disabled by default)
+  "tailwindcss-sorter.runOnSave": false,
 
----
+  // Show code actions (quick fixes)
+  "tailwindcss-sorter.showCodeActions": true,
 
-## Following extension guidelines
+  // Show diagnostic hints for unsorted classes
+  "tailwindcss-sorter.showDiagnostics": false,
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+  // Diagnostic severity: "hint", "information", "warning", "error"
+  "tailwindcss-sorter.diagnosticSeverity": "hint"
+}
+```
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+### Language Configuration
 
-## Working with Markdown
+The extension comes pre-configured for common languages. You can customize or add more:
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+```json
+{
+  "tailwindcss-sorter.languages": [
+    {
+      "languageId": "ruby",
+      "patterns": [
+        {
+          "regex": "class:\\s*[\"']([^\"']+)[\"']",
+          "captureGroup": 1
+        },
+        {
+          "regex": "classes:\\s*[\"']([^\"']+)[\"']",
+          "captureGroup": 1
+        },
+        {
+          "regex": "class:\\s*%w\\[([^\\]]+)\\]",
+          "captureGroup": 1
+        }
+      ]
+    },
+    {
+      "languageId": "html",
+      "patterns": [
+        {
+          "regex": "class=\"([^\"]+)\"",
+          "captureGroup": 1
+        }
+      ]
+    }
+  ]
+}
+```
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+### Pre-configured Languages
 
-## For more information
+The extension includes patterns for:
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+- **Ruby** - `class: "..."`, `classes: "..."`, `class: %w[...]`
+- **ERB** - `class="..."`, `class='...'`
+- **HTML** - `class="..."`, `class='...'`
+- **JavaScript React (JSX)** - `className="..."`, `className={'...'}`
+- **TypeScript React (TSX)** - `className="..."`, `className={'...'}`
+- **Vue** - `class="..."`, `:class="'...'"`
 
-**Enjoy!**
+### Adding Custom Languages
+
+To add support for a new language:
+
+1. Find the VS Code language identifier (shown in bottom-right of VS Code when editing a file)
+2. Create regex patterns that match class attributes in that language
+3. Add to your settings:
+
+```json
+{
+  "tailwindcss-sorter.languages": [
+    {
+      "languageId": "slim",
+      "patterns": [
+        {
+          "regex": "\\.([a-zA-Z0-9_-]+(?:\\s+[a-zA-Z0-9_-]+)*)",
+          "captureGroup": 1
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Ruby / Phlex Example
+
+For Ruby files using Phlex components:
+
+```ruby
+# Before sorting
+div class: "px-4 bg-blue-500 text-white rounded py-2"
+
+# After sorting
+div class: "rounded bg-blue-500 px-4 py-2 text-white"
+```
+
+The extension recognizes these Ruby patterns by default:
+
+- `class: "..."` or `class: '...'`
+- `classes: "..."` or `classes: '...'`
+- `class: %w[...]`
+
+## Works With Other Formatters
+
+This extension is designed to work alongside your existing tools:
+
+- **ruby-lsp** - No conflicts, different concerns
+- **Prettier** - No conflicts when using commands/code actions
+- **ESLint** - No conflicts
+- **Rubocop** - No conflicts
+
+The extension **only modifies** the class string content, never the surrounding syntax.
+
+## Powered By
+
+This extension uses [@herb-tools/tailwind-class-sorter](https://www.npmjs.com/package/@herb-tools/tailwind-class-sorter), which implements the same sorting algorithm as the official [prettier-plugin-tailwindcss](https://github.com/tailwindlabs/prettier-plugin-tailwindcss) from Tailwind Labs.
+
+## Troubleshooting
+
+### Classes not being sorted?
+
+1. Check that the language is configured in `tailwindcss-sorter.languages`
+2. Verify your regex pattern matches the class syntax you're using
+3. Check the "Tailwind CSS Sorter" output channel for errors
+
+### Wrong sort order?
+
+Make sure your `tailwind.config.js` path is correct, or the extension will use default Tailwind order.
+
+### Conflicts with other extensions?
+
+- Keep `runOnSave: false` (default) and use commands instead
+- Or configure your formatter to run first, then this extension
+
+## Contributing
+
+Contributions are welcome! Please open an issue or PR on the GitHub repository.
+
+## License
+
+MIT
