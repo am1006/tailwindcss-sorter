@@ -1,3 +1,0 @@
-[submodule "vendor/prettier-plugin-tailwindcss"]
-	path = vendor/prettier-plugin-tailwindcss
-	url = https://github.com/tailwindlabs/prettier-plugin-tailwindcss.git
