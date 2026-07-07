@@ -1,0 +1,18 @@
+{
+  "name": "tailwindcss-sorter",
+  "version": "0.0.1",
+  "description": "Tailwind CSS class-order CLI for Ruby projects with no JS environment - name reserved, first working release in development",
+  "homepage": "https://github.com/am1006/tailwindcss-sorter",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/am1006/tailwindcss-sorter.git"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

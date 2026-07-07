@@ -1,0 +1,12 @@
+# v1-era build artifacts still on disk (the extension lives on the v1 branch)
+node_modules/
+dist/
+out/
+vendor/
+src/
+.vscode-test/
+*.vsix
+.DS_Store
+
+# gem build output
+*.gem
