@@ -1,0 +1,21 @@
+{
+  "name": "tailwindcss-sorter-factory",
+  "private": true,
+  "description": "The factory: builds the oracle bundle into the gem and proves it against the official prettier plugin",
+  "type": "module",
+  "scripts": {
+    "check": "tsgo --noEmit",
+    "build": "tsgo --noEmit && node build.ts",
+    "truth": "tsgo --noEmit && node truth.ts"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0",
+    "prettier": "^3.9.4",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "tailwindcss": "4.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@typescript/native-preview": "latest"
+  }
+}

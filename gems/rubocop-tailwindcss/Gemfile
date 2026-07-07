@@ -1,0 +1,7 @@
+source "https://rubygems.org"
+
+gemspec
+
+gem "minitest"
+gem "mini_racer" # the engine seam's optional fallback, exercised in tests
+gem "rake"

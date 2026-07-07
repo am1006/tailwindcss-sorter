@@ -1,0 +1,17 @@
+Tailwindcss/ClassOrder:
+  Description: "Sort Tailwind CSS classes in the official order."
+  Enabled: true
+  Safe: true
+  SafeAutoCorrect: true
+  VersionAdded: "0.1"
+  Stylesheet: app/assets/tailwind/application.css
+  Engine: quickjs
+  Attributes:
+    - class
+    - classes
+  Functions:
+    - cn
+    - cva
+  Include:
+    - app/views/**/*.rb
+    - app/components/**/*.rb

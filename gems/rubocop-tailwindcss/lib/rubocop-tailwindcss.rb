@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# rubocop-tailwindcss is under development - this release reserves the name.
-# Follow along at https://github.com/am1006/tailwindcss-sorter
-module RuboCop
-  module Tailwindcss
-    VERSION = "0.0.1"
-  end
-end
+require "rubocop"
+
+require_relative "rubocop/tailwindcss/version"
+require_relative "rubocop/tailwindcss/plugin"
+require_relative "rubocop/tailwindcss/sorter"
+require_relative "rubocop/cop/tailwindcss/class_order"
